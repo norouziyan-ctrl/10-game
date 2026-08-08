@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#14172c">
+<title>ده‌یاب | پازل اعداد</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2314172c'/%3E%3Ctext x='50' y='68' font-size='54' text-anchor='middle' fill='%23e8b34c' font-family='sans-serif' font-weight='900'%3E10%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2314172c'/%3E%3Ctext x='50' y='68' font-size='54' text-anchor='middle' fill='%23e8b34c' font-family='sans-serif' font-weight='900'%3E10%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href='data:application/manifest+json,{"name":"ده‌یاب - پازل اعداد","short_name":"ده‌یاب","start_url":".","display":"standalone","background_color":"%2314172c","theme_color":"%2314172c","orientation":"portrait","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=\x27http://www.w3.org/2000/svg\x27 viewBox=\x270 0 100 100\x27%3E%3Crect width=\x27100\x27 height=\x27100\x27 rx=\x2720\x27 fill=\x27%2314172c\x27/%3E%3Ctext x=\x2750\x27 y=\x2768\x27 font-size=\x2754\x27 text-anchor=\x27middle\x27 fill=\x27%23e8b34c\x27 font-family=\x27sans-serif\x27 font-weight=\x27900\x27%3E10%3C/text%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml"}]}'>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12142a;
+    --bg-radial: radial-gradient(1200px 800px at 50% -10%, #232a58 0%, #12142a 55%);
+    --panel:#1c2046;
+    --panel-2:#232852;
+    --tile:#262b52;
+    --tile-border:#3c4180;
+    --tile-hi:#40477e;
+    --gold:#e8b34c;
+    --gold-2:#f6cd7a;
+    --turq:#33b3ba;
+    --turq-2:#7fe0e4;
+    --success:#6fcf97;
+    --error:#e8615f;
+    --text:#f3efe4;
+    --text-dim:#9ea3cf;
+    --radius:14px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0; height:100%;}
+  body{
+    background:var(--bg-radial);
+    color:var(--text);
+    font-family:'Vazirmatn', sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:10px 10px 20px;
+    overflow-x:hidden;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+
+  .wrap{width:100%; max-width:560px;}
+
+  /* ---------- Header ---------- */
+  header{
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:6px; text-align:center;
+  }
+  .title-block h1{
+    margin:0; font-size:22px; font-weight:900; letter-spacing:.5px;
+    background:linear-gradient(90deg,var(--gold-2),var(--turq-2));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .title-block p{margin:2px 0 0; font-size:11px; color:var(--text-dim); font-weight:500;}
+  .score-row{
+    display:flex; justify-content:center; gap:10px; margin-bottom:4px;
+  }
+  .score-badge{
+    background:var(--panel);
+    border:1px solid var(--tile-border);
+    border-radius:14px;
+    padding:5px 20px;
+    display:flex; align-items:baseline; gap:8px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 4px 10px rgba(0,0,0,.25);
+  }
+  .score-badge .num{
+    font-size:20px; font-weight:800; color:var(--gold-2);
+    font-variant-numeric: tabular-nums;
+    transition: transform .18s ease;
+  }
+  .score-badge .num.bump{transform:scale(1.25);}
+  .score-badge .lbl{font-size:11px; color:var(--text-dim); font-weight:600;}
+  .score-badge.record-badge .num{color:var(--turq-2);}
+
+  /* ---------- Toast ---------- */
+  .toast-zone{height:26px; display:flex; align-items:center; justify-content:center; margin-bottom:4px;}
+  .toast{
+    font-size:14px; font-weight:700; color:var(--bg);
+    background:linear-gradient(90deg,var(--gold),var(--gold-2));
+    padding:6px 18px; border-radius:20px;
+    opacity:0; transform:translateY(6px) scale(.9);
+    transition: all .25s cubic-bezier(.34,1.56,.64,1);
+    box-shadow:0 6px 18px rgba(232,179,76,.25);
+    white-space:nowrap;
+  }
+  .toast.show{opacity:1; transform:translateY(0) scale(1);}
+  .toast.bad{
+    background:linear-gradient(90deg,#c04a48,var(--error)); color:#fff;
+    box-shadow:0 6px 18px rgba(232,97,95,.25);
+  }
+
+  /* ---------- Board ---------- */
+  .board-panel{
+    background:var(--panel);
+    border:1px solid var(--tile-border);
+    border-radius:18px;
+    padding:8px;
+    position:relative;
+    box-shadow: 0 20px 50px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
+  }
+  .board-scroll{
+    max-height:66vh;
+    overflow-y:auto;
+    overflow-x:hidden;
+    border-radius:12px;
+  }
+  .board-scroll::-webkit-scrollbar{width:6px;}
+  .board-scroll::-webkit-scrollbar-thumb{background:var(--tile-border); border-radius:4px;}
+
+  #board{
+    position:relative;
+    display:grid;
+    grid-template-columns:repeat(6, 1fr);
+    gap:6px;
+    padding:4px;
+  }
+  .cell{
+    aspect-ratio:1/1;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(160deg, #ffffff 0%, #e7ebfb 55%, #dbe1f7 100%);
+    border:1px solid rgba(255,255,255,.6);
+    border-radius:11px;
+    font-size:22px; font-weight:800;
+    color:#242a56;
+    cursor:pointer;
+    position:relative;
+    user-select:none;
+    box-shadow:
+      0 3px 0 rgba(20,22,50,.28),
+      0 5px 10px rgba(10,12,30,.35),
+      inset 0 1px 0 rgba(255,255,255,.9);
+    transition: transform .16s cubic-bezier(.2,.9,.3,1.3), background .18s ease, box-shadow .18s ease, color .15s ease;
+  }
+  .cell::before{
+    content:"";
+    position:absolute; inset:3px;
+    border:1px solid rgba(36,42,86,.06);
+    border-radius:6px;
+    pointer-events:none;
+    transform:rotate(45deg) scale(.4);
+    transition: transform .2s ease, opacity .2s ease;
+    opacity:.6;
+  }
+  .cell.empty{
+    background:rgba(255,255,255,.05);
+    border:1px dashed rgba(255,255,255,.14);
+    box-shadow: inset 0 2px 6px rgba(0,0,0,.35);
+    cursor:default;
+  }
+  .cell.empty::before{display:none;}
+  @media (hover:hover){
+    .cell:not(.empty):hover{
+      transform: translateY(-4px) scale(1.07) rotate(-1deg);
+      background:linear-gradient(160deg, var(--gold-2) 0%, var(--gold) 100%);
+      color:#20233f;
+      box-shadow:
+        0 7px 0 rgba(150,102,20,.35),
+        0 14px 22px rgba(232,179,76,.4),
+        inset 0 1px 0 rgba(255,255,255,.7);
+    }
+  }
+  .cell:not(.empty):active{
+    transform: translateY(1px) scale(.95);
+    box-shadow: 0 1px 0 rgba(20,22,50,.3), inset 0 1px 4px rgba(0,0,0,.2);
+  }
+  .cell.selected{
+    background:linear-gradient(160deg, var(--turq-2), var(--turq));
+    border-color:rgba(255,255,255,.8);
+    color:#0e2c2e;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow:
+      0 6px 0 rgba(20,90,92,.4),
+      0 12px 20px rgba(51,179,186,.4),
+      inset 0 1px 0 rgba(255,255,255,.7);
+  }
+  .cell.selected::before{transform:rotate(45deg) scale(.6); opacity:1; border-color:rgba(14,44,46,.25);}
+  .cell.hint{
+    animation: hintPulse 0.7s ease-in-out infinite;
+  }
+  @keyframes hintPulse{
+    0%,100%{
+      background:linear-gradient(160deg,#baff29,#7cff00);
+      color:#173400;
+      box-shadow:0 3px 0 rgba(20,22,50,.28), 0 0 0 0 rgba(124,255,0,.7);
+    }
+    50%{
+      background:linear-gradient(160deg,#d4ff7a,#9cff33);
+      color:#173400;
+      box-shadow:0 3px 0 rgba(20,22,50,.28), 0 0 14px 8px rgba(124,255,0,.35);
+    }
+  }
+  .cell.wrong{
+    background:linear-gradient(160deg, #ff8583, var(--error)) !important;
+    border-color:rgba(255,255,255,.6) !important;
+    color:#3a0a09 !important;
+    animation: shake .35s ease;
+  }
+  @keyframes shake{
+    0%,100%{transform:translateX(0);}
+    25%{transform:translateX(-4px);}
+    75%{transform:translateX(4px);}
+  }
+  .cell.correct-pop{
+    animation: pop .35s ease forwards;
+  }
+  @keyframes pop{
+    0%{transform:scale(1); opacity:1;}
+    60%{transform:scale(1.25); opacity:.7;}
+    100%{transform:scale(0); opacity:0;}
+  }
+  #lineLayer{
+    position:absolute; inset:0; width:100%; height:100%;
+    pointer-events:none; overflow:visible;
+  }
+  .connect-line{
+    stroke:url(#lineGrad);
+    stroke-width:3;
+    stroke-linecap:round;
+    fill:none;
+    stroke-dasharray: 6 6;
+    opacity:0;
+  }
+  .connect-line.draw{
+    animation: drawLine .38s ease forwards, fadeOut .25s ease .32s forwards;
+  }
+  @keyframes drawLine{
+    0%{opacity:0; stroke-dashoffset:40;}
+    30%{opacity:1;}
+    100%{stroke-dashoffset:0; opacity:1;}
+  }
+  @keyframes fadeOut{ to{opacity:0;} }
+
+  /* ---------- Controls ---------- */
+  .controls{
+    display:flex; gap:8px; margin-top:10px;
+  }
+  .btn{
+    flex:1;
+    border:none; border-radius:12px;
+    padding:8px 6px 7px;
+    font-family:'Vazirmatn', sans-serif; font-size:11.5px; font-weight:800;
+    letter-spacing:.2px;
+    cursor:pointer;
+    display:flex; flex-direction:row; align-items:center; justify-content:center; gap:5px;
+    position:relative;
+    transition: transform .12s cubic-bezier(.2,.9,.3,1.3), box-shadow .12s ease, filter .15s ease;
+    color:#20233f;
+  }
+  .btn .icon{font-size:14px; line-height:1; filter:drop-shadow(0 1px 0 rgba(0,0,0,.15));}
+  .btn > span:not(.icon){display:flex; flex-direction:column; align-items:center; line-height:1.3;}
+  .btn:active{transform:translateY(2px); }
+  .btn.hint-btn{
+    background:linear-gradient(160deg,var(--gold-2),var(--gold));
+    box-shadow: 0 3px 0 #a9762a, 0 6px 10px rgba(232,179,76,.3), inset 0 1px 0 rgba(255,255,255,.5);
+  }
+  .btn.hint-btn:active{box-shadow: 0 1px 0 #a9762a, inset 0 1px 4px rgba(0,0,0,.15);}
+  .btn.add-btn{
+    background:linear-gradient(160deg,var(--turq-2),var(--turq));
+    box-shadow: 0 3px 0 #1c7a7f, 0 6px 10px rgba(51,179,186,.3), inset 0 1px 0 rgba(255,255,255,.5);
+  }
+  .btn.add-btn:active{box-shadow: 0 1px 0 #1c7a7f, inset 0 1px 4px rgba(0,0,0,.15);}
+  .btn.restart-btn{
+    background:linear-gradient(160deg,#2b3060,var(--panel-2));
+    color:var(--text);
+    box-shadow: 0 3px 0 #0d0f22, 0 6px 10px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  .btn.restart-btn:active{box-shadow: 0 1px 0 #0d0f22, inset 0 1px 4px rgba(0,0,0,.3);}
+  @media (hover:hover){
+    .btn:not(:disabled):hover{ transform:translateY(-1px); filter:brightness(1.06); }
+  }
+  .btn:disabled{
+    opacity:.4; cursor:not-allowed; filter:grayscale(.5);
+    transform:none !important;
+  }
+  .btn small{font-size:9px; font-weight:700; opacity:.85;}
+
+  .status-line{
+    text-align:center; margin-top:12px; font-size:12px; color:var(--text-dim);
+    min-height:16px;
+  }
+
+  .win-overlay{
+    position:fixed; inset:0; background:rgba(10,11,26,.86);
+    display:none; align-items:center; justify-content:center; z-index:50;
+    padding:20px;
+  }
+  .win-overlay.show{display:flex;}
+  .win-card{
+    background:var(--panel); border:1px solid var(--tile-border);
+    border-radius:20px; padding:30px 26px; text-align:center; max-width:320px;
+  }
+  .win-card h2{margin:0 0 6px; font-size:22px; color:var(--gold-2);}
+  .win-card p{margin:0 0 18px; color:var(--text-dim); font-size:14px;}
+  .win-card .btn{width:100%;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="title-block">
+      <h1>ده‌یاب</h1>
+      <p>مجموع ۱۰ یا اعداد برابر رو پیدا کن</p>
+    </div>
+  </header>
+
+  <div class="score-row">
+    <div class="score-badge">
+      <span class="lbl">امتیاز</span>
+      <span class="num" id="scoreNum">0</span>
+    </div>
+    <div class="score-badge record-badge">
+      <span class="lbl">🏆 رکورد</span>
+      <span class="num" id="recordNum">0</span>
+    </div>
+  </div>
+
+  <div class="toast-zone"><div class="toast" id="toast"></div></div>
+
+  <div class="board-panel">
+    <div class="board-scroll">
+      <div id="board">
+        <svg id="lineLayer">
+          <defs>
+            <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#e8b34c"/>
+              <stop offset="100%" stop-color="#7fe0e4"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn hint-btn" id="hintBtn"><span class="icon">💡</span><span>راهنمایی <small id="hintCount">۳</small></span></button>
+    <button class="btn add-btn" id="addBtn"><span class="icon">➕</span><span>افزودن <small id="addStageLbl">۴ ردیف</small></span></button>
+    <button class="btn restart-btn" id="restartBtn"><span class="icon">🔄</span><span>دوباره</span></button>
+  </div>
+
+  <div class="status-line" id="statusLine"></div>
+</div>
+
+<div class="win-overlay" id="winOverlay">
+  <div class="win-card">
+    <h2 id="winTitle">پازل تمام شد! 🎉</h2>
+    <p id="winMsg">امتیاز نهایی: ۰</p>
+    <button class="btn add-btn" id="winRestart">بازی جدید</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const COLS = 6;
+  const ADD_STAGES = [4,3,2,1]; // rows added per stage
+  const HINT_MAX = 3;
+  const PRAISE = [
+    "آفرین کیارش جان! کارت درسته",
+    "آفرین کیارش جان! کارت درسته 🎉",
+    "دمت گرم کیارش جان، عالی بود!",
+    "آفرین کیارش جان! کارت درسته ⭐",
+    "دستت درد نکنه، خیلی خوب بود!",
+    "عالی بود کیارش جان! ادامه بده 🔥",
+    "همینه! تیزبینی‌ت حرف نداره 👏",
+    "به‌به، چه انتخاب درستی!",
+    "آفرین، همینطوری پیش برو!",
+    "فوق‌العاده بود کیارش جان! 💪"
+  ];
+
+  const faDigits = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+  function toFa(n){
+    return String(n).split('').map(ch => /[0-9]/.test(ch) ? faDigits[+ch] : ch).join('');
+  }
+
+  let lastPraiseIdx = -1;
+  function pickPraise(){
+    let idx;
+    do{ idx = Math.floor(Math.random()*PRAISE.length); }
+    while(PRAISE.length>1 && idx===lastPraiseIdx);
+    lastPraiseIdx = idx;
+    return PRAISE[idx];
+  }
+
+  let grid = [];        // grid[r][c] = number (1-9) or null
+  let score = 0;
+  let hintsLeft = HINT_MAX;
+  let addStage = 0;     // index into ADD_STAGES, how many times used
+  let selected = null;  // {r,c}
+  let busy = false;     // lock input during animations
+
+  const boardEl = document.getElementById('board');
+  const lineLayer = document.getElementById('lineLayer');
+  const scoreNumEl = document.getElementById('scoreNum');
+  const toastEl = document.getElementById('toast');
+  const hintBtn = document.getElementById('hintBtn');
+  const hintCountEl = document.getElementById('hintCount');
+  const addBtn = document.getElementById('addBtn');
+  const addStageLbl = document.getElementById('addStageLbl');
+  const statusLine = document.getElementById('statusLine');
+  const restartBtn = document.getElementById('restartBtn');
+  const winOverlay = document.getElementById('winOverlay');
+  const winMsg = document.getElementById('winMsg');
+  const winRestart = document.getElementById('winRestart');
+  const recordNumEl = document.getElementById('recordNum');
+
+  function randNum(){ return 1 + Math.floor(Math.random()*9); }
+
+  let bestScore = 0;
+  function loadBest(){
+    let v = 0;
+    try{ v = parseInt(localStorage.getItem('deyab_best_score'), 10) || 0; }catch(e){ v = bestScore; }
+    bestScore = v;
+    recordNumEl.textContent = toFa(bestScore);
+  }
+  function maybeUpdateBest(){
+    if(score > bestScore){
+      bestScore = score;
+      recordNumEl.textContent = toFa(bestScore);
+      try{ localStorage.setItem('deyab_best_score', String(bestScore)); }catch(e){ /* ignore */ }
+    }
+  }
+
+  function newGame(){
+    loadBest();
+    grid = [];
+    for(let r=0;r<4;r++){
+      const row = [];
+      for(let c=0;c<COLS;c++) row.push(randNum());
+      grid.push(row);
+    }
+    score = 0;
+    hintsLeft = HINT_MAX;
+    addStage = 0;
+    selected = null;
+    busy = false;
+    winOverlay.classList.remove('show');
+    updateScore(true);
+    updateHintUI();
+    updateAddUI();
+    render();
+    setStatus('برای شروع، دو عدد هم‌ردیف، هم‌ستون یا مورب که مجموعشون ۱۰ بشه یا با هم برابر باشن رو انتخاب کن.');
+  }
+
+  function render(){
+    // clear cells but keep svg layer
+    [...boardEl.querySelectorAll('.cell')].forEach(el => el.remove());
+    boardEl.style.gridTemplateRows = `repeat(${grid.length}, 1fr)`;
+
+    for(let r=0;r<grid.length;r++){
+      for(let c=0;c<COLS;c++){
+        const val = grid[r][c];
+        const cell = document.createElement('div');
+        cell.className = 'cell' + (val===null ? ' empty' : '');
+        cell.dataset.r = r;
+        cell.dataset.c = c;
+        if(val!==null){
+          cell.textContent = toFa(val);
+          cell.addEventListener('click', onCellClick);
+        }
+        boardEl.appendChild(cell);
+      }
+    }
+    if(selected){
+      const el = cellEl(selected.r, selected.c);
+      if(el) el.classList.add('selected');
+    }
+  }
+
+  function cellEl(r,c){
+    return boardEl.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+  }
+
+  function updateScore(instant){
+    scoreNumEl.textContent = toFa(score);
+    if(!instant){
+      scoreNumEl.classList.remove('bump');
+      void scoreNumEl.offsetWidth;
+      scoreNumEl.classList.add('bump');
+    }
+    maybeUpdateBest();
+  }
+
+  function setStatus(msg){ statusLine.textContent = msg; }
+
+  let toastTimer;
+  function showToast(msg, bad){
+    clearTimeout(toastTimer);
+    toastEl.textContent = msg;
+    toastEl.classList.toggle('bad', !!bad);
+    toastEl.classList.add('show');
+    toastTimer = setTimeout(()=> toastEl.classList.remove('show'), 1400);
+  }
+
+  // ---------- pair validity ----------
+  // returns {valid, gapCount} or null if direction invalid / blocked
+  function checkLine(r1,c1,r2,c2){
+    const dr = r2-r1, dc = c2-c1;
+    if(dr===0 && dc===0) return null;
+    const sameRow = dr===0;
+    const sameCol = dc===0;
+    const diag = Math.abs(dr)===Math.abs(dc);
+    if(!sameRow && !sameCol && !diag) return null;
+
+    const steps = Math.max(Math.abs(dr), Math.abs(dc));
+    const sr = dr===0?0:dr/Math.abs(dr);
+    const sc = dc===0?0:dc/Math.abs(dc);
+    let gapCount = 0;
+    for(let i=1;i<steps;i++){
+      const rr = r1+sr*i, cc = c1+sc*i;
+      if(rr<0||rr>=grid.length||cc<0||cc>=COLS) return null;
+      const v = grid[rr][cc];
+      if(v!==null) return null; // blocked by a number
+      gapCount++;
+    }
+    return {gapCount};
+  }
+
+  function isMatch(v1,v2){
+    return (v1+v2===10) || (v1===v2);
+  }
+
+  function findAnyValidPair(){
+    for(let r1=0;r1<grid.length;r1++){
+      for(let c1=0;c1<COLS;c1++){
+        if(grid[r1][c1]===null) continue;
+        for(let r2=r1;r2<grid.length;r2++){
+          for(let c2=0;c2<COLS;c2++){
+            if(r2===r1 && c2<=c1) continue;
+            if(grid[r2][c2]===null) continue;
+            if(!isMatch(grid[r1][c1], grid[r2][c2])) continue;
+            const res = checkLine(r1,c1,r2,c2);
+            if(res) return {r1,c1,r2,c2};
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  // ---------- interaction ----------
+  function onCellClick(e){
+    if(busy) return;
+    const el = e.currentTarget;
+    const r = +el.dataset.r, c = +el.dataset.c;
+    if(grid[r][c]===null) return;
+
+    if(!selected){
+      selected = {r,c};
+      el.classList.add('selected');
+      return;
+    }
+    if(selected.r===r && selected.c===c){
+      // deselect
+      el.classList.remove('selected');
+      selected = null;
+      return;
+    }
+
+    const res = checkLine(selected.r, selected.c, r, c);
+    if(!res){
+      // not aligned / blocked -> just move selection to the new cell
+      const prevEl = cellEl(selected.r, selected.c);
+      if(prevEl) prevEl.classList.remove('selected');
+      selected = {r,c};
+      el.classList.add('selected');
+      return;
+    }
+
+    const v1 = grid[selected.r][selected.c], v2 = grid[r][c];
+    if(isMatch(v1,v2)){
+      handleCorrect(selected, {r,c}, res.gapCount);
+    }else{
+      handleWrong(selected, {r,c});
+    }
+  }
+
+  function handleCorrect(a, b, gapCount){
+    busy = true;
+    const elA = cellEl(a.r,a.c), elB = cellEl(b.r,b.c);
+    drawConnectLine(a,b);
+    elA.classList.add('correct-pop');
+    elB.classList.add('correct-pop');
+
+    const gained = 5 + gapCount*2;
+    score += gained;
+
+    setTimeout(()=>{
+      grid[a.r][a.c] = null;
+      grid[b.r][b.c] = null;
+      selected = null;
+      removeEmptyRows();
+      render();
+      updateScore();
+      showToast(pickPraise() + `  (+${toFa(gained)})`);
+      busy = false;
+      checkGameState();
+    }, 380);
+  }
+
+  function handleWrong(a,b){
+    busy = true;
+    const elA = cellEl(a.r,a.c), elB = cellEl(b.r,b.c);
+    elA.classList.add('wrong');
+    elB.classList.add('wrong');
+    showToast('اشتباه بود، دوباره امتحان کن', true);
+    setTimeout(()=>{
+      elA.classList.remove('wrong','selected');
+      elB.classList.remove('wrong');
+      selected = null;
+      busy = false;
+    }, 500);
+  }
+
+  function drawConnectLine(a,b){
+    const boardRect = boardEl.getBoundingClientRect();
+    const elA = cellEl(a.r,a.c), elB = cellEl(b.r,b.c);
+    const ra = elA.getBoundingClientRect(), rb = elB.getBoundingClientRect();
+    const x1 = ra.left + ra.width/2 - boardRect.left;
+    const y1 = ra.top + ra.height/2 - boardRect.top;
+    const x2 = rb.left + rb.width/2 - boardRect.left;
+    const y2 = rb.top + rb.height/2 - boardRect.top;
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',x1); line.setAttribute('y1',y1);
+    line.setAttribute('x2',x2); line.setAttribute('y2',y2);
+    line.setAttribute('class','connect-line draw');
+    lineLayer.appendChild(line);
+    setTimeout(()=> line.remove(), 700);
+  }
+
+  // ---------- row cleanup ----------
+  function removeEmptyRows(){
+    grid = grid.filter(row => row.some(v => v!==null));
+  }
+
+  // ---------- hint ----------
+  function updateHintUI(){
+    hintCountEl.textContent = `${toFa(hintsLeft)}`;
+    hintBtn.disabled = hintsLeft<=0;
+  }
+
+  hintBtn.addEventListener('click', ()=>{
+    if(busy || hintsLeft<=0) return;
+    const pair = findAnyValidPair();
+    if(!pair){
+      showToast('جفتی برای راهنمایی پیدا نشد', true);
+      return;
+    }
+    hintsLeft--;
+    updateHintUI();
+    const elA = cellEl(pair.r1,pair.c1), elB = cellEl(pair.r2,pair.c2);
+    elA.classList.add('hint'); elB.classList.add('hint');
+    elA.scrollIntoView({behavior:'smooth', block:'center', inline:'nearest'});
+    setTimeout(()=>{
+      elA.classList.remove('hint'); elB.classList.remove('hint');
+    }, 1500);
+  });
+
+  // ---------- add rows ----------
+  function updateAddUI(){
+    if(addStage >= ADD_STAGES.length){
+      addBtn.disabled = true;
+      addStageLbl.textContent = 'تمام';
+      return;
+    }
+    const rowsToAdd = ADD_STAGES[addStage];
+    addStageLbl.textContent = `${toFa(rowsToAdd)} ردیف`;
+  }
+
+  addBtn.addEventListener('click', ()=>{
+    if(busy || addStage>=ADD_STAGES.length) return;
+    const rowsToAdd = ADD_STAGES[addStage];
+    for(let i=0;i<rowsToAdd;i++){
+      const row = [];
+      for(let c=0;c<COLS;c++) row.push(randNum());
+      grid.push(row);
+    }
+    addStage++;
+    selected = null;
+    render();
+    updateAddUI();
+    setStatus(`${toFa(ADD_STAGES[addStage-1])} ردیف جدید اضافه شد.`);
+    checkGameState();
+  });
+
+  // ---------- game state ----------
+  function checkGameState(){
+    const totalCells = grid.reduce((s,row)=> s+row.filter(v=>v!==null).length, 0);
+    if(totalCells===0){
+      showWin('پازل تمام شد! 🎉', `همه‌ی اعداد پاک شدن. امتیاز نهایی: ${toFa(score)}`);
+      return;
+    }
+    const pair = findAnyValidPair();
+    if(!pair){
+      if(addStage>=ADD_STAGES.length){
+        showWin('بازی تمام شد', `دیگه جفتی نمونده و ردیف اضافه‌ای هم باقی نمونده. امتیاز نهایی: ${toFa(score)}`);
+      }else{
+        setStatus('جفتی باقی نمونده — دکمه «افزودن ردیف» رو بزن.');
+      }
+    }
+  }
+
+  function showWin(title, msg){
+    document.getElementById('winTitle').textContent = title;
+    winMsg.textContent = msg;
+    winOverlay.classList.add('show');
+  }
+
+  winRestart.addEventListener('click', newGame);
+  restartBtn.addEventListener('click', ()=>{
+    if(confirm('بازی جدید شروع بشه؟ امتیاز فعلی از دست میره.')) newGame();
+  });
+
+  window.addEventListener('resize', ()=>{ /* lines are transient, nothing persistent to reposition */ });
+
+  newGame();
+})();
+</script>
+</body>
+</html>
